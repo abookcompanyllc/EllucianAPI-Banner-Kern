@@ -69,14 +69,6 @@ namespace EllucianAPI_Banner_Kern
                         #endregion
                     }
 
-                    if (sintSchoolID == "6594")
-                    {
-                        #region Sites Data
-                        //loops through sites data
-                        saveIABookAwards(base_url, ApiKey, sintSchoolID, offset);
-                        #endregion
-                    }
-
 
                     #region Term Data
                     //loops through term data
@@ -639,66 +631,6 @@ namespace EllucianAPI_Banner_Kern
 
         }
 
-        private static void saveIABookAwards(string baseurl, string apikey, string sintSchoolID, int offset)
-        {
-            try
-            {
-                string apitoken = GetApiToken(baseurl, apikey, sintSchoolID);
-                string strHtml = string.Empty;
-                strHtml = getIABookData(baseurl, apitoken, sintSchoolID, offset);
-
-                dynamic IaBookData = JsonConvert.DeserializeObject(strHtml);
-                //Console.WriteLine(IaBookData.Count);
-                foreach (var data in IaBookData)
-                {
-                    //Console.WriteLine(data);
-
-
-                    string aidYear = string.Empty;
-                    string awardFund = string.Empty;
-                    string studentId = string.Empty;
-
-
-                    if (data.aidYear != null)
-                    {
-                        aidYear = data.aidYear.id;
-                    }
-                    if (data.awardFund != null)
-                    {
-                        awardFund = data.awardFund.id;
-                    }
-                    if (data.student.id != null)
-                    {
-                        studentId = data.student.id;
-                    }
-
-
-
-                    Console.WriteLine("Saving: " + studentId);
-
-
-                    saveDrakeIABook(sintSchoolID, studentId, aidYear, awardFund);
-                    //Console.ReadKey();
-
-
-
-                }
-
-                if (IaBookData.Count == 500)
-                {
-                    offset = offset + 500;
-                    saveIABookAwards(baseurl, apitoken, sintSchoolID, offset);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                sendEmail("School ID: " + sintSchoolID + "\r\n\r\n" + ex.ToString(), ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in [[MAIN]] saveIABookAwards");
-                //Console.WriteLine(ex.ToString());
-            }
-
-
-        }
 
 
         private static void saveAllSites(string baseurl, string apikey, string sintSchoolID, int offset)
@@ -1483,72 +1415,7 @@ namespace EllucianAPI_Banner_Kern
             return strHTML;
         }
 
-        public static string getIABookData(string baseurl, string apitoken, string sintSchoolID, int offset)
-        {
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            HttpWebRequest myRequest = null;
-            WebResponse myResponse = null;
-            System.IO.StreamReader sr = null;
-            string strHTML = string.Empty;
 
-            try
-            {
-
-                //the award fund is set, should never change... The aidyear needs to be updated to the current year
-                baseurl = baseurl + "/api/restricted-student-financial-aid-awards?criteria={\"awardFund\": {\"id\": \"5fe4b259-d4d5-4477-a674-32fe61337d1c\"},\"aidYear\":{\"id\":\"ab6b3860-3256-4eea-915f-4b48adcbb963\"}}";
-
-                Console.WriteLine(baseurl);
-                myRequest = (HttpWebRequest)WebRequest.Create(baseurl);
-                myRequest.Headers.Add("Authorization", "Bearer " + apitoken);
-                myRequest.Accept = "application/vnd.hedtech.integration.v11+json";
-                myRequest.Method = "GET";
-                myRequest.Timeout = 20000;
-                myResponse = myRequest.GetResponse();
-
-                sr = new System.IO.StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
-                strHTML = sr.ReadToEnd();
-
-                sr.Close();
-                myResponse.Close();
-            }
-            catch (WebException e)
-            {
-
-                using (WebResponse response = e.Response)
-                {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
-                    //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
-                    using (Stream data = response.GetResponseStream())
-                    using (var reader = new StreamReader(data))
-                    {
-                        // text is the response body
-                        string text = reader.ReadToEnd();
-                        //Console.WriteLine(text);
-                        sendEmail(baseurl + "\r\n\r\n Error code:" + httpResponse.StatusCode + "\r\n" + "School ID: " + sintSchoolID + "\r\n" + text, ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in getIABookData()");
-                    }
-                }
-
-                //Console.WriteLine(ex.InnerException);
-                strHTML = string.Empty;
-            }
-            /*
-            catch (Exception ex)
-            {
-
-                sendEmail("Url:" + baseurl + "\r\n" + "School ID: " + sintSchoolID + "\r\n" + ex.ToString(), ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in getTermData2()");
-                //Console.WriteLine(ex.Message);
-                strHTML = string.Empty;
-            }
-            */
-            finally
-            {
-                myRequest = null;
-                myResponse = null;
-                sr = null;
-            }
-
-            return strHTML;
-        }
 
         public static string getSiteData(string baseurl, string apitoken, string sintSchoolID, int offset)
         {
