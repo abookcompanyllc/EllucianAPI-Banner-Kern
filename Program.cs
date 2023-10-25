@@ -1495,7 +1495,9 @@ namespace EllucianAPI_Banner_Kern
             try
             {
                 //this one gets all terms, even in the future
-                baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-6).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}}&offset=" + offset;
+                baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}}&offset=" + offset;
+
+                //baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-6).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"category\":{\"type\":\"term\"}}&offset=" + offset;
 
                 // baseurl = baseurl + "/api/academic-periods/65e91f27-8f9f-4c1e-b1f4-6dceb3e9f3d6";
                 //this only get terms that are open for registration
