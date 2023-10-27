@@ -1793,14 +1793,11 @@ namespace EllucianAPI_Banner_Kern
 
             try
             {
-                //baseurl = baseurl + "/api/section-instructors?criteria={\"section\":{\"id\":\"3b3d3665-dd51-4b75-abee-14e5ca4af0e1\"}}";
-                //baseurl = baseurl + "/api/instructors/f6242cdb-92f9-483a-82b1-d779f82d5f86";
-                //get courses that have a start date going back one year
-                //baseurl = baseurl + "/api/sections?criteria={\"startOn\":\""+ DateTime.Today.AddYears(-1).ToString("yyyy-MM-dd") + "\"}&limit=4";
-                //baseurl = baseurl + "/api/sections?criteria={\"startOn\":\"" + DateTime.Today.AddMonths(-12).ToString("yyyy-MM-dd") + "\",\"status\":{\"category\":\"open\"}}&offset=" + offset;
+
 
                 baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"" + termID + "\"}}&offset=" + offset + "&limit=75";
-                //baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"415c4914-3b9d-4682-a9ea-6a0cb01ec44b\"}}&offset=900";
+                // baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"detail\":{\"id\":\""+termID+ "\"}}}&offset=" + offset + ""; this is used if you use sections-maximmum
+
                 Console.WriteLine(baseurl);
 
                 myRequest = (HttpWebRequest)WebRequest.Create(baseurl);
