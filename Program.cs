@@ -39,6 +39,8 @@ namespace EllucianAPI_Banner_Kern
             //getPSOData();
             //Test(ConfigurationManager.AppSettings["base_url"].ToString(), "aca755ee-eb1b-4f6d-8c46-cbdb744de74e", "6594");
             //Test(ConfigurationManager.AppSettings["base_url"].ToString(), "32cc2d4a-75f3-4976-be67-c4e486fd1e15", "6615");
+            //loopSectionsData(ConfigurationManager.AppSettings["base_url"].ToString(), "32cc2d4a-75f3-4976-be67-c4e486fd1e15", "6615");
+            //saveAllSections(ConfigurationManager.AppSettings["base_url"].ToString(), "32cc2d4a-75f3-4976-be67-c4e486fd1e15", "6615", 0, "c3c2bf6f-2e19-4e99-95e6-3632a2fb1f9c");
             //FullRun();
             //Console.ReadKey();
         }
@@ -1081,7 +1083,10 @@ namespace EllucianAPI_Banner_Kern
                     {
                         site_id = course.site.id;
                     }
-
+                    if (course.zeroTextbookCost != null)
+                    {
+                        zeroTextbookCost = course.zeroTextbookCost;
+                    }
                     if (sintSchoolID == "6615")
                     {
 
@@ -1118,9 +1123,9 @@ namespace EllucianAPI_Banner_Kern
 
                 }
 
-                if (CourseData.Count == 100)
+                if (CourseData.Count == 75)
                 {
-                    offset = offset + 100;
+                    offset = offset + 75;
                     saveAllSections(baseurl, apitoken, sintSchoolID, offset, termID);
                 }
 
@@ -1212,7 +1217,7 @@ namespace EllucianAPI_Banner_Kern
             {
 
                 baseurl = baseurl + "/api/sections/" + id;
-                Console.WriteLine(baseurl);
+               // Console.WriteLine(baseurl);
 
                 myRequest = (HttpWebRequest)WebRequest.Create(baseurl);
                 myRequest.Headers.Add("Authorization", "Bearer " + apitoken);
@@ -1228,6 +1233,7 @@ namespace EllucianAPI_Banner_Kern
                 sr.Close();
                 myResponse.Close();
             }
+            /*
             catch (WebException e)
             {
 
@@ -1247,16 +1253,17 @@ namespace EllucianAPI_Banner_Kern
 
                 //Console.WriteLine(ex.InnerException);
                 strHTML = string.Empty;
-            }
-            /*
+
+            }*/
+            
             catch (Exception ex)
             {
 
-                sendEmail("Url:" + baseurl + "\r\n" + "School ID: " + sintSchoolID + "\r\n" + ex.ToString(), ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in getTermData2()");
+                sendEmail("Url:" + baseurl + "\r\n" + "School ID: " + sintSchoolID + "\r\n" + ex.ToString(), ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in getZeroCostField()");
                 //Console.WriteLine(ex.Message);
                 strHTML = string.Empty;
             }
-            */
+            
             finally
             {
                 myRequest = null;
@@ -1795,13 +1802,15 @@ namespace EllucianAPI_Banner_Kern
                 //baseurl = baseurl + "/api/sections?criteria={\"startOn\":\""+ DateTime.Today.AddYears(-1).ToString("yyyy-MM-dd") + "\"}&limit=4";
                 //baseurl = baseurl + "/api/sections?criteria={\"startOn\":\"" + DateTime.Today.AddMonths(-12).ToString("yyyy-MM-dd") + "\",\"status\":{\"category\":\"open\"}}&offset=" + offset;
 
-                baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"" + termID + "\"}}&offset=" + offset;
+                baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"" + termID + "\"}}&offset=" + offset + "&limit=75";
                 //baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"415c4914-3b9d-4682-a9ea-6a0cb01ec44b\"}}&offset=900";
                 Console.WriteLine(baseurl);
 
                 myRequest = (HttpWebRequest)WebRequest.Create(baseurl);
                 myRequest.Headers.Add("Authorization", "Bearer " + apitoken);
+  
                 myRequest.Accept = "application/vnd.hedtech.integration.v16+json";
+                //myRequest.Accept = "application/vnd.hedtech.integration.sections-maximum.v16.0.0+json";
                 myRequest.Method = "GET";
                 myRequest.Timeout = 400000;
                 myResponse = myRequest.GetResponse();
