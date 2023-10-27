@@ -1083,10 +1083,7 @@ namespace EllucianAPI_Banner_Kern
                     {
                         site_id = course.site.id;
                     }
-                    if (course.zeroTextbookCost != null)
-                    {
-                        zeroTextbookCost = course.zeroTextbookCost;
-                    }
+                   
                     if (sintSchoolID == "6615")
                     {
 
