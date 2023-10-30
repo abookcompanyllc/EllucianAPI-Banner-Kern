@@ -108,7 +108,7 @@ namespace EllucianAPI_Banner_Kern
                     saveAllStudent2(base_url, ApiKey, sintSchoolID);
                     #endregion
 
-
+                    
                     if (bProcessData)
                     {
                         Console.WriteLine("--------Processing Course Data Into Fast------------");
@@ -987,8 +987,148 @@ namespace EllucianAPI_Banner_Kern
 
         }
 
-
         private static void saveAllSections(string baseurl, string apikey, string sintSchoolID, int offset, string termID)
+        {
+
+            try
+            {
+                string apitoken = GetApiToken(baseurl, apikey, sintSchoolID);
+                string strHtml = string.Empty;
+                string strHtml2 = string.Empty;
+
+                strHtml = getSectionData(baseurl, apitoken, sintSchoolID, offset, termID);
+
+                dynamic CourseData = JsonConvert.DeserializeObject(strHtml);
+                //Console.WriteLine(CourseData);
+                Console.WriteLine(CourseData.Count);
+                //Console.ReadKey();
+
+
+                foreach (var course in CourseData)
+                {
+
+                    //Console.WriteLine(course);
+                    //Console.ReadKey();
+                    string courseID = string.Empty;
+                    string sectionID = string.Empty;
+                    string title = string.Empty;
+                    string startOn = string.Empty;
+                    string endOn = string.Empty;
+                    string code = string.Empty;
+                    string number = string.Empty;
+                    string maxEnrollment = string.Empty;
+                    string academicPeriod = string.Empty;
+                    string vcLevel1 = string.Empty;
+                    string vcLevel2 = string.Empty;
+                    string vcLevel3 = string.Empty;
+                    string creditHours = string.Empty;
+                    string status = string.Empty;
+                    string site_id = string.Empty;
+                    string zeroTextbookCost = string.Empty;
+
+                    if (course.id != null)
+                    {
+                        sectionID = course.id;
+                    }
+                    if (course.course != null)
+                    {
+                        courseID = course.course.detail.id;
+                    }
+                    if (course.academicPeriod != null)
+                    {
+                        academicPeriod = course.academicPeriod.detail.id;
+                    }
+                    if (course.startOn != null)
+                    {
+                        startOn = course.startOn;
+                    }
+                    if (course.endOn != null)
+                    {
+                        endOn = course.endOn;
+                    }
+                    if (course.code != null)
+                    {
+                        code = course.code;
+                        if (code.Contains('-'))
+                        {
+                            string[] levels = code.Split('-');
+                            vcLevel1 = levels[0];
+                            vcLevel2 = levels[1];
+                            vcLevel3 = levels[2];
+                        }
+
+                    }
+                    if (course.number != null)
+                    {
+                        number = course.number;
+                    }
+                    if (course.maxEnrollment != null)
+                    {
+                        maxEnrollment = course.maxEnrollment;
+                    }
+                    if (course.titles != null)
+                    {
+                        title = course.titles[0].value;
+                    }
+                    if (course.credits != null)
+                    {
+                        creditHours = course.credits[0].minimum;
+                    }
+                    if (course.status != null)
+                    {
+                        status = course.status.category;
+                    }
+                    if (course.site != null)
+                    {
+                        site_id = course.site.detail.id;
+                    }
+                    if (course.zeroTextbookCost != null)
+                    {
+                        zeroTextbookCost = course.zeroTextbookCost;
+                    }
+                   
+
+
+
+
+                    saveSectionData(sintSchoolID, sectionID, courseID, title, startOn, endOn, code, vcLevel1, vcLevel2, vcLevel3, number, maxEnrollment, academicPeriod, creditHours, status, site_id, zeroTextbookCost);
+
+                    Console.WriteLine("Saving section: " + sectionID);
+                    Console.WriteLine("Course ID: " + courseID);
+                    Console.WriteLine(title);
+                    Console.WriteLine(startOn);
+                    Console.WriteLine(endOn);
+                    Console.WriteLine(code);
+                    Console.WriteLine("vcLevel1: " + vcLevel1);
+                    Console.WriteLine("vcLevel2: " + vcLevel2);
+                    Console.WriteLine("vcLevel3: " + vcLevel3);
+                    Console.WriteLine(number);
+                    Console.WriteLine(maxEnrollment);
+                    Console.WriteLine(academicPeriod);
+                    Console.WriteLine("creditHours: " + creditHours);
+                    Console.WriteLine("status: " + status);
+                    Console.WriteLine("--------------------------");
+                    //Console.ReadKey();
+
+                }
+
+                if (CourseData.Count == 100)
+                {
+                    offset = offset + 100;
+                    saveAllSections(baseurl, apitoken, sintSchoolID, offset, termID);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                sendEmail("School ID: " + sintSchoolID + "\r\n\r\n" + ex.ToString(), ConfigurationManager.AppSettings["EmailFrom"].ToString(), ConfigurationManager.AppSettings["EmailTo"].ToString(), "Ellucian API Error in [[MAIN]] saveAllSections");
+                //Console.WriteLine(ex.ToString());
+            }
+
+
+        }
+
+        private static void saveAllSections_OLD(string baseurl, string apikey, string sintSchoolID, int offset, string termID)
         {
 
             try
@@ -1499,7 +1639,7 @@ namespace EllucianAPI_Banner_Kern
             try
             {
                 //this one gets all terms, even in the future
-                baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}}&offset=" + offset;
+                baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-8).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}}&offset=" + offset;
 
                 //baseurl = baseurl + "/api/academic-periods?criteria={\"startOn\":{\"$gte\":\"" + DateTime.Today.AddMonths(-6).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"endOn\":{\"$lte\":\"" + DateTime.Today.AddMonths(+12).ToString("yyyy-MM-dd") + "T00:00:00Z\"}, \"category\":{\"type\":\"term\"}}&offset=" + offset;
 
@@ -1795,16 +1935,16 @@ namespace EllucianAPI_Banner_Kern
             {
 
 
-                baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"" + termID + "\"}}&offset=" + offset + "&limit=75";
-                // baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"detail\":{\"id\":\""+termID+ "\"}}}&offset=" + offset + ""; this is used if you use sections-maximmum
+                //baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"id\":\"" + termID + "\"}}&offset=" + offset + "&limit=75";
+                baseurl = baseurl + "/api/sections?criteria={\"academicPeriod\":{\"detail\":{\"id\":\""+termID+ "\"}}}&offset=" + offset + ""; //this is used if you use sections-maximmum
 
                 Console.WriteLine(baseurl);
 
                 myRequest = (HttpWebRequest)WebRequest.Create(baseurl);
                 myRequest.Headers.Add("Authorization", "Bearer " + apitoken);
   
-                myRequest.Accept = "application/vnd.hedtech.integration.v16+json";
-                //myRequest.Accept = "application/vnd.hedtech.integration.sections-maximum.v16.0.0+json";
+                //myRequest.Accept = "application/vnd.hedtech.integration.v16+json";
+                myRequest.Accept = "application/vnd.hedtech.integration.sections-maximum.v16.0.0+json";
                 myRequest.Method = "GET";
                 myRequest.Timeout = 400000;
                 myResponse = myRequest.GetResponse();
